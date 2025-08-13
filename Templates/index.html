@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Creek AI Web App</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; max-width: 800px; }
+    textarea, input { width: 100%; padding: 10px; margin: 10px 0; }
+    button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
+    img { max-width: 100%; margin-top: 15px; }
+    audio { margin-top: 15px; width: 100%; }
+    pre { background: #eee; padding: 10px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Creek AI Demo</h1>
+
+  <!-- Text Generation -->
+  <section>
+    <h2>Text Generation</h2>
+    <textarea id="textInput" rows="4" placeholder="Enter text prompt..."></textarea>
+    <button onclick="generateText()">Generate Text</button>
+    <pre id="textOutput"></pre>
+  </section>
+
+  <!-- Image Generation -->
+  <section>
+    <h2>Image Generation</h2>
+    <input type="text" id="imageInput" placeholder="Enter image prompt..." />
+    <button onclick="generateImage()">Generate Image</button>
+    <div><img id="imageOutput" alt="Generated image will appear here"/></div>
+  </section>
+
+  <!-- Voice Synthesis -->
+  <section>
+    <h2>Voice Synthesis</h2>
+    <textarea id="voiceInput" rows="3" placeholder="Enter text for voice synthesis..."></textarea>
+    <button onclick="generateVoice()">Generate Voice</button>
+    <audio id="voiceOutput" controls></audio>
+  </section>
+
+  <!-- Web Scraping -->
+  <section>
+    <h2>Surface Web Scraping</h2>
+    <input type="text" id="scrapeInput" placeholder="Enter search query..." />
+    <select id="scrapeEngine">
+      <option value="duckduckgo">DuckDuckGo</option>
+      <option value="bing">Bing</option>
+    </select>
+    <button onclick="scrapeWeb()">Scrape Web</button>
+    <pre id="scrapeOutput"></pre>
+  </section>
+
+  <script>
+    async function generateText() {
+      const query = document.getElementById('textInput').value;
+      const res = await fetch('/generate-text', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ query })
+      });
+      const data = await res.json();
+      document.getElementById('textOutput').textContent = data.result || data.error || 'No output';
+    }
+
+    async function generateImage() {
+      const query = document.getElementById('imageInput').value;
+      const res = await fetch('/generate-image', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ query })
+      });
+      if (!res.ok) {
+        alert('Image generation failed');
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const img = document.getElementById('imageOutput');
+      img.src = url;
+    }
+
+    async function generateVoice() {
+      const text = document.getElementById('voiceInput').value;
+      const res = await fetch('/generate-voice', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ text })
+      });
+      if (!res.ok) {
+        alert('Voice generation failed');
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = document.getElementById('voiceOutput');
+      audio.src = url;
+      audio.play();
+    }
+
+    async function scrapeWeb() {
+      const query = document.getElementById('scrapeInput').value;
+      const engine = document.getElementById('scrapeEngine').value;
+      const res = await fetch('/scrape', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ query, engine })
+      });
+      const data = await res.json();
+      if (data.error) {
+        document.getElementById('scrapeOutput').textContent = data.error;
+      } else {
+        document.getElementById('scrapeOutput').textContent = data.results.join('\n\n') || 'No results';
+      }
+    }
+  </script>
+</body>
+</html>

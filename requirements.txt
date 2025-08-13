@@ -1,0 +1,14 @@
+flask
+transformers
+torch
+diffusers
+requests
+beautifulsoup4
+TTS
+python-dotenv
+huggingface_hub
+pydub
+numpy
+scipy
+pillow
+

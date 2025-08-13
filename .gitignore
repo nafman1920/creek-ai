@@ -1,0 +1,7 @@
+ai-env/
+venv/
+Models/
+models/
+__pycache__/
+*.pyc
+.env
